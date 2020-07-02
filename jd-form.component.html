@@ -1,0 +1,143 @@
+<div class="main-panel">
+  <div class="page-header">
+   <h2 class="page-title"> <b>Job Listing Form </b> </h2>
+ </div>
+ <div class="row">
+   <div class="col-md-6 col-lg-12 grid-margin stretch-card">
+     <div class="card">
+       <div class="card-body">
+         <br>
+         <form   #form="ngForm" (ngSubmit)="jbFormData(form.value)">
+
+            <div class="form-group">
+              <label for="jobTitle"><b>Job Title </b></label>
+              <input type="text" class="form-control" name="jobTitle" [(ngModel)]="model.jobTitle" #jobTitle="ngModel"
+                placeholder="Job Title"/>
+                <!-- <div *ngIf="form.submitted && jobTitle.invalid" class="invalid-feedback">
+                  <div *ngIf="jobTitle.errors.required"><i class="mdi mdi-alert-outline"></i>Job Title is required</div>
+                </div> -->
+            </div>
+
+           <div class="form-group">
+             <label for="jobDescription"><b>Job Description </b></label>
+             <textarea class="form-control"  rows="10" name="jobDescription" 
+               placeholder="Job Description" 
+               ></textarea>
+             <!-- <div *ngIf="f.submitted && jobDescription.invalid" class="invalid-feedback">
+               <div *ngIf="jobDescription.errors.required"><i class="mdi mdi-alert-outline"></i> Job Description is required</div>
+             </div> -->
+           </div>
+
+           <div class="form-group">
+             <label for="openingDate"><b>Opening date </b></label>
+             <input type="date" #openingDate class="form-control" name="openingDate"
+               
+               />
+             <!-- <div *ngIf="f.submitted && openingDate.invalid" class="invalid-feedback">
+               <div *ngIf="openingDate.errors.required"><i class="mdi mdi-alert-outline"></i> Opening Date is required</div>
+             </div> -->
+           </div>
+
+           <div class="form-group">
+             <label for="closingDate"><b>Closing Date </b></label>
+             <input type="date" #closingDate class="form-control" name="closingDate" 
+               [min]=minimumDate/>
+             <!-- <div *ngIf="error.isError" class="alert alert-danger">
+               {{ error.errorMessage }}
+             </div> -->
+           </div>
+
+           <div class="form-group">
+             <label for="skills"><b>Skills </b></label>
+             <input type="text" class="form-control"  name="skills" 
+               placeholder="Skills"  maxlength="30"
+                />
+             <!-- <div *ngIf="f.submitted && skills.invalid" class="invalid-feedback">
+               <div *ngIf="skills.errors.required"><i class="mdi mdi-alert-outline"></i> Skills is required</div>
+             </div> -->
+           </div>
+
+           <div class="form-group">
+             <label for="eligibilityCriteria"><b>Eligibility criteria </b></label>
+             <select class="form-control form-control-lg" name="eligibilityCriteria" 
+               placeholder="Criteria" 
+               (change)="selectChangeHandlerEligibilityCriteria($event)" 
+               >
+               <option class="select-css" disabled selected hidden value="">Select Eligibility Criteria</option>
+               <option class="select-css"*ngFor="let el of eligibilityCriterias" [ngValue]="el.id">
+                {{ el.eligibilityCriteriaName }}
+              </option>
+            </select>
+             <!-- <div *ngIf="submitted && formControls.eligibilityCriteria.errors" class="invalid-feedback">
+               <div *ngIf="formControls.eligibilityCriteria.errors.required"><i class="mdi mdi-alert-outline"></i>
+                 Eligibility criteria is required</div>
+             </div> -->
+           </div>
+
+           <div class="form-group">
+             <label for="employmentType"><b>Employment Type </b></label>
+             <select class="form-control form-control-lg" name="employmentType"
+               
+               (change)="selectChangeHandlerJobType($event)"
+               >
+               <option class="select-css" disabled selected hidden value="">Select Employment Type</option>
+               <option class="select-css"*ngFor="let employmentType of employmentTypes" [ngValue]="employmentType.id">
+                {{ employmentType.employmentTypeName }}
+              </option>
+            </select>
+             <!-- <div *ngIf="f.submitted && employmentType.invalid" class="invalid-feedback">
+               <div *ngIf="jobType.errors.required"><i class="mdi mdi-alert-outline"></i> Employment Type is  required</div>
+             </div> -->
+           </div>
+
+           <div class="form-group">
+             <label for="location"><b>Location </b></label>
+             <select class="form-control form-control-lg" name="location" 
+               
+               (change)="selectChangeHandlerLocation($event)"
+               >
+               <option class="select-css" disabled selected hidden value="">Select Location</option>
+               <option class="select-css"*ngFor="let location of locations" [ngValue]="location.id">
+                {{ location.locationName }}
+              </option>
+             </select>
+             <!-- <div *ngIf="f.submitted && location.invalid" class="invalid-feedback">
+               <div *ngIf="location.errors.required"><i class="mdi mdi-alert-outline"></i> Location is Required</div>
+             </div> -->
+           </div>
+
+         
+            <div class="form-group">
+              <label for="salary"><b>Salary (per annum)</b></label>
+              
+                  <div class="input-group col-xs-12">
+                    <button class="btn btn-gradient-danger btn-lg dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      {{buttonName}}
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item"value="USD" (click)="currencyChange($event)">USD</a>
+                      <a class="dropdown-item" value="INR"(click)="currencyChange($event)">INR</a>
+                    </div>
+                    <input type="number" class="form-control" placeholder="Salary"
+                    name="salary"  />
+                  </div>
+              </div>
+
+           <div class="form-group">
+             <label for="vacancies"><b>No .of Vacancies </b></label>
+             <input type="number" class="form-control" name="vacancies" 
+             placeholder="Vacancies" />
+           </div>
+           <br>
+           <div class="d-flex flex-row-reverse">
+           <button type="submit"  class="btn btn-gradient-danger mr-2" ><b>ADD</b></button>
+           <!-- <button type="button" class="btn btn-light" routerLink="/admin/job-desc"> -->
+           <!-- <b> Cancel</b>
+          </button> -->
+          </div>
+         </form>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
