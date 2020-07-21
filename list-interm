@@ -1,0 +1,451 @@
+<div>
+  <app-interview-detail
+    *ngIf="role == 'Employee' && title == 'round'"
+    [data]="data[0]"
+    [title]="title"
+  >
+  </app-interview-detail>
+  <app-interview-detail
+    *ngIf="role == 'Employee' && title == 'candidate'"
+    [data]="optionalCardData"
+    [title]="title"
+  >
+  </app-interview-detail>
+  <div class="col-lg-12 stretch-card desktopView">
+    <div class="card">
+      <div class="card-body">
+        <div class="itemsDiv">
+          <div class="search-field  d-md-block mb-2">
+            <form class="d-flex align-items-center h-100" action="#">
+              <div class="input-group ">
+                <div class="input-group-prepend bg-transparent card">
+                  <i class="card-body input-group-text mdi mdi-magnify"></i>
+                </div>
+                <input #searchInput type="text"
+                  class="form-control bg-transparent searchInput" placeholder="Search ">
+              </div>
+            </form>
+          </div>
+          <div *ngIf="title == 'candidate'" class="d-flex">
+            <!-- <div class="shortlisting pt-2 pr-2 ">
+              <a (click)=toggleDisplayDiv()>Start Shortlisting</a>
+            </div> -->
+            <div *ngIf="title == 'candidate' && isSelected == true" ngbDropdown>
+              <!-- <button class="btn btn-gradient-danger" id="addOption" ngbDropdownToggle>Mark As
+              </button> -->
+
+            <div *ngIf="role!='Employee'">
+              <button class="btn btn-gradient-danger mr-2" (click)="shorlisting(true)">Shortlisted</button>
+              <button class="btn btn-gradient-danger mr-2" (click)="shorlisting(false)">Rejected</button>
+            </div>
+            </div>
+            <div
+              *ngIf="title == 'candidate' && isSelected == false"
+              ngbDropdown
+            >
+              <!-- <button class="btn btn-gradient-danger" id="addOption" ngbDropdownToggle>Mark As
+              </button> -->
+
+              <button class="btn btn-fw btn-gradient-danger disabled mr-2">
+                Shortlisted
+              </button>
+              <button class="btn btn-fw btn-gradient-danger disabled mr-2">
+                Rejected
+              </button>
+            </div>
+          </div>
+          <div *ngIf="title == 'employee'" ngbDropdown class="addEmployee">
+            <button
+              class="btn btn-gradient-danger"
+              id="addOption"
+              ngbDropdownToggle
+            >
+              <i class="mdi mdi-account-plus"></i>Add {{ title | titlecase }}(s)
+            </button>
+            <div ngbDropdownMenu class="customised-dropdown-parent">
+              <button
+                ngbDropdownItem
+                class="btn btn-gradient-danger btn-fw"
+                (click)="openModal('create')"
+              >
+                <i class="mdi mdi-account-plus"></i> Add {{ title | titlecase }}
+              </button>
+              <button
+                ngbDropdownItem
+                class="btn btn-gradient-danger btn-fw"
+                (click)="openFileUploadModal()"
+              >
+                <i class="mdi mdi-account-plus"></i> Add through file upload
+              </button>
+            </div>
+          </div>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <td
+                *ngIf="(role == 'Admin' || 'SuperAdministrator') && title == 'candidate'"
+                class="form-check form-check-flat"
+              >
+                <label class="form-check-label">
+                  <input
+                    #checkAll
+                    type="checkbox"
+                    (change)="check($event, checkAll.checked)"
+                  />
+                  <i class="input-helper"></i>
+                </label>
+              </td>
+              <th *ngFor="let columnName of columns; let i = index">
+                {{ columnName | uppercase }}
+              </th>
+            </tr>
+          </thead>
+          <tbody *ngFor="let entry of data; let i = index">
+            <tr
+              [ngStyle]="{
+                visibility:
+                  role == 'Employee' &&
+                  entry.applicationStatusType?.statusName == 'Rejected'
+                    ? 'collapse'
+                    : 'visible'
+              }"
+            >
+              <td
+                *ngIf="(role == 'Admin' || 'SuperAdministrator') && title == 'candidate'"
+                class="form-check form-check-flat"
+              >
+                <label class="form-check-label">
+                  <input
+                    #checkOne
+                    class="checkbox"
+                    type="checkbox"
+                    (click)="checkSpecific($event, entry.id)"
+                    [(ngModel)]="entry.checked"
+                    *ngIf="(entry.applicationStatusType?.statusName=='Applied Successfully'
+                                 ||entry.applicationStatusType?.statusName=='Shortlisted'||
+                                 entry.applicationStatusType?.statusName=='Rejected')"
+                  />
+                  <i class="input-helper"></i>
+                </label>
+              </td>
+              <td *ngFor="let columnName of columns">
+                <ng-container [ngSwitch]="true">
+                  <div *ngSwitchCase="columnName == 'name'">
+                    {{ entry["candidate"]?.name | titlecase }}
+                  </div>
+                  <div *ngSwitchCase="columnName == 'email'">
+                    {{ entry["candidate"]?.email }}
+                  </div>
+                  <div *ngSwitchCase="columnName == 'Job Position'">
+                    {{ entry["job"]?.jobTitle | titlecase }}
+                  </div>
+                  <div
+                    *ngSwitchCase="columnName == 'status'"
+                    [ngClass]="{
+                      shortlisted:
+                        entry.applicationStatusType.statusName == 'Shortlisted',
+                      rejected:
+                        entry.applicationStatusType.statusName == 'Rejected'
+                    }"
+                  >
+                    {{
+                      entry["applicationStatusType"]?.statusName | pascalToTitle
+                    }}
+                  </div>
+                  <div *ngSwitchCase="columnName == 'roundDate'">
+                    {{ entry[columnName] | date }}
+                  </div>
+                  <div *ngSwitchCase="columnName == 'jdObjectId'">
+                    {{ entry[columnName]?.jdTitle }}
+                  </div>
+                  <div *ngSwitchCase="columnName == 'roundType'">
+                    {{ entry["roundType"]?.name }}
+                  </div>
+                  <div *ngSwitchCase="columnName == 'cv'">
+                    <div *ngIf="title === 'candidate'">
+                      <a (click)="showPdf(entry.id)"
+                        ><i class="fa fa-file-pdf-o"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div *ngSwitchCase="columnName == 'view'">
+                    <div *ngIf="role == 'Admin' || 'SuperAdministrator'">
+                      <a (click)="openModal('view', entry)"
+                        ><i class="mdi mdi-eye"></i
+                      ></a>
+                    </div>
+                  </div>
+                  <div *ngSwitchDefault>{{ entry[columnName] }}</div>
+                </ng-container>
+              </td>
+
+              <td *ngIf="title === 'candidate' && role == 'Employee'">
+                <button
+                  type="button"
+                  class="btn btn-gradient-danger"
+                  [disabled]="notToBeAssessed[i]"
+                  [routerLink]="
+                    '/candidate-assessment/jd/' +
+                    entry['jobId'] +
+                    '/candidate/' +
+                    entry['candidateId']
+                  "
+                >
+                  Assess
+                </button>
+              </td>
+              <td  *ngIf="(role == 'SuperAdministrator'||role== 'Admin') 
+                        &&  entry.applicationStatusType?.statusName == 'Selected'">
+                <button class="btn btn-link"style="padding-top:2px"
+                (click)="extendOffer(entry.id)">
+                  Extend Offer
+                </button>
+              </td>
+              <td *ngIf="role == 'SuperAdministrator'">
+                <a (click)="deleteEntry(entry)"
+                  ><i class="mdi mdi-delete"></i
+                ></a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="noMatch">
+          <p class="p-2" *ngIf="data?.length == 0">No Match Found</p>
+          <p class="p-2" *ngIf="role == 'Employee' && shortlistedCount === 0">
+            No Candidates are Shortlisted for this Job Profile
+          </p>
+        </div>
+
+        <div class="card paginationDiv" *ngIf="pager?.totalPages >= 1">
+          <div>
+            <ul *ngIf="pager?.pages && pager?.pages?.length" class="pagination">
+              <li
+                [ngClass]="{ disabled: pager.currentPage === 1 }"
+                class="page-item previous-item"
+              >
+                <a
+                  (click)="
+                    setPageForPagination(
+                      searchInput.value,
+                      pager.currentPage - 1
+                    )
+                  "
+                  class="page-link"
+                  ><i class="mdi mdi-chevron-left arrow"></i
+                ></a>
+              </li>
+              <li
+                *ngFor="let page of pager.pages"
+                [ngClass]="{ active: pager.currentPage === page }"
+                class="page-item number-item"
+              >
+                <a
+                  (click)="setPageForPagination(searchInput.value, page)"
+                  class="page-link"
+                  >{{ page }}</a
+                >
+              </li>
+              <li
+                [ngClass]="{ disabled: pager.currentPage === pager.totalPages }"
+                class="page-item next-item"
+              >
+                <a
+                  (click)="
+                    setPageForPagination(
+                      searchInput.value,
+                      pager.currentPage + 1
+                    )
+                  "
+                  class="page-link"
+                  ><i class="mdi mdi-chevron-right arrow"></i
+                ></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- <ngx-spinner bdColor="rgba(51, 51, 51, 0.8)" size="medium" color="#934d4d" type="ball-spin-clockwise">
+      <p style="color: white;">Please Wait.</p>
+    </ngx-spinner> -->
+    </div>
+
+    <div class="row mobileView">
+      <div class="card-body justify-content-between">
+        <div ngbDropdown class="addEmployee addMobile">
+          <button
+            class="btn btn-gradient-danger"
+            id="addOption"
+            ngbDropdownToggle
+          >
+            <i class="mdi mdi-account-plus"></i>Add {{ title | titlecase }}(s)
+          </button>
+          <div ngbDropdownMenu>
+            <button
+              *ngIf="title == 'employee'"
+              ngbDropdownItem
+              class="btn btn-gradient-danger"
+              (click)="openModal('create')"
+            >
+              <i class="mdi mdi-account-plus"></i>Add {{ title | titlecase }}
+            </button>
+            <button
+              ngbDropdownItem
+              class="btn btn-gradient-danger"
+              (click)="openFileUploadModal()"
+            >
+              <i class="mdi mdi-account-plus"></i> Add through file upload
+            </button>
+          </div>
+        </div>
+        <div class="search-field d-md-block">
+          <form class="d-flex align-items-center h-100" action="#">
+            <div class="input-group w-25">
+              <div class="input-group-prepend bg-transparent card">
+                <i
+                  class="card-body input-group-text border-0 mdi mdi-magnify"
+                ></i>
+              </div>
+              <input
+                #searchInputForSmallDevice
+                (input)="setPageForPagination(searchInputForSmallDevice.value)"
+                type="text"
+                class="form-control"
+                placeholder="Search "
+              />
+            </div>
+          </form>
+        </div>
+        <div class="noMatch">
+          <p class="p-2" *ngIf="data?.length == 0">No Match Found</p>
+        </div>
+        <div class="mt-4 userCard" *ngFor="let entry of data">
+          <ngb-accordion [closeOthers]="true" activeIds="collapse-1">
+            <ngb-panel id="collapse-2" class="accordion">
+              <ng-template ngbPanelHeader let-opened="opened">
+                <div class="cardMobileView">
+                  <div class="d-flex justify-content-between">
+                    <div class="d-flex">
+                      <!-- <div class="pt-2">
+                        <img
+                          class="nav-profile-img"
+                          src="../../assets/images/customers-icon-3.png"
+                          alt="image"
+                        />
+                      </div> -->
+                      <ng-container [ngSwitch]="true">
+                        <!-- <h5 *ngSwitchCase="columnName=='jdObjectId'" class="m-0 p-3">{{entry[columnName].jdTitle}}
+                    </h5>
+                    <h5 *ngSwitchCase="columnName=='name'">{{entry['candidate']?.name}}</h5> -->
+                        <h5 *ngSwitchDefault class="m-0 p-3">
+                          {{ entry[columns[0]] }}
+                        </h5>
+                      </ng-container>
+                    </div>
+                    <div class="d-flex">
+                      <div class="p-3">
+                        <a class="p-2" (click)="openModal('view', entry)"
+                          ><i class="mdi mdi-eye"></i
+                        ></a>
+                        <a class="p-2" (click)="openModal('update', entry)"
+                          ><i class="mdi mdi-pencil"></i
+                        ></a>
+                        <a class="p-2" (click)="deleteEntry(entry)"
+                          ><i class="mdi mdi-delete"></i
+                        ></a>
+                      </div>
+                      <button ngbPanelToggle class="btn btn-link p-0">
+                        <i class="mdi mdi-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+              <ng-template ngbPanelContent>
+                <div *ngFor="let columnName of columns" class="py-2">
+                  <div>
+                    <b>
+                      {{ columnName | uppercase }}
+                    </b>
+                  </div>
+                  <div>
+                    <ng-container [ngSwitch]="columnName">
+                      <div *ngSwitchCase="columnName == 'name'">
+                        {{ entry["candidate"]?.name }}
+                      </div>
+                      <div *ngSwitchCase="columnName == 'email'">
+                        {{ entry["candidate"]?.email }}
+                      </div>
+                      <div *ngSwitchCase="columnName == 'Job Position'">
+                        {{ entry["job"]?.jobTitle }}
+                      </div>
+                      <!-- <ng-container [ngSwitch]="true"> -->
+                      <div *ngSwitchCase="columnName == 'date'">
+                        {{ entry[columnName] | date }}
+                      </div>
+                      <div *ngSwitchCase="columnName == 'jdObjectId'">
+                        {{ entry[columnName]?.jdTitle }}
+                      </div>
+                      <div *ngSwitchCase="columnName == 'roundType'">
+                        {{ entry["roundType"]?.name }}
+                      </div>
+                      <div *ngSwitchDefault>{{ entry[columnName] }}</div>
+                    </ng-container>
+                  </div>
+                </div>
+              </ng-template>
+            </ngb-panel>
+          </ngb-accordion>
+        </div>
+      </div>
+
+      <!-- <div class="paginationDiv" *ngIf="pager?.totalPages >= 1">
+        <ul *ngIf="pager?.pages && pager?.pages?.length" class="pagination">
+          <li
+            [ngClass]="{ disabled: pager.currentPage == 1 }"
+            class="page-item previous-item"
+          >
+            <a
+              (click)="
+                setPageForPagination(
+                  searchInputForSmallDevice.value,
+                  pager.currentPage - 1
+                )
+              "
+              class="page-link"
+              ><i class="mdi mdi-chevron-left arrow"></i
+            ></a>
+          </li>
+          <li
+            *ngFor="let page of pager.pages"
+            [ngClass]="{ active: pager.currentPage === page }"
+            class="page-item number-item"
+          >
+            <a
+              (click)="
+                setPageForPagination(searchInputForSmallDevice.value, page)
+              "
+              class="page-link"
+              >{{ page }}</a
+            >
+          </li>
+          <li
+            [ngClass]="{ disabled: pager.currentPage == pager.totalPages }"
+            class="page-item next-item"
+          >
+            <a
+              (click)="
+                setPageForPagination(
+                  searchInputForSmallDevice.value,
+                  pager.currentPage + 1
+                )
+              "
+              class="page-link"
+              ><i class="mdi mdi-chevron-right arrow"></i
+            ></a>
+          </li>
+        </ul>
+      </div> -->
+    </div>
+  </div>
+</div>
